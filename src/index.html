@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Future Computer</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- Adding Google Fonts for Roboto -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="particle-container" id="particles-js"></div>
+  
+  <div class="app-container">
+    <div class="title-bar">
+      <div class="title">The Future Computer</div>
+      <div class="window-controls">
+        <span class="minimize"></span>
+        <span class="maximize"></span>
+        <span class="close"></span>
+      </div>
+    </div>
+    
+    <div class="main-interface">
+      <div class="prompt-section">
+        <div class="prompt-box">
+          <input type="text" id="prompt-input" placeholder="What would you like to create today?" />
+          <button id="generate-btn">Generate</button>
+        </div>
+      </div>
+      
+      <div class="app-container" id="generated-app-container">
+        <div class="placeholder-content">
+          <div class="loading-spinner">
+            <div class="particle-ring"></div>
+          </div>
+          <div class="logo-placeholder">
+            <div class="logo-inner"></div>
+          </div>
+          <p>Your generated app will appear here</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="status-bar">
+      <div class="status">Ready</div>
+      <div class="api-status">API: Connected</div>
+    </div>
+  </div>
+
+  <!-- Particle JS library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/particlesjs/2.2.3/particles.min.js"></script>
+  
+  <!-- Custom script to initialize particles -->
+  <script>
+    // Initialize particles
+    window.onload = function() {
+      // Particles background
+      Particles.init({
+        selector: '.particle-container',
+        color: ['#e4f1fe', '#c5eff7', '#b8e6f3'],
+        connectParticles: true,
+        responsive: [
+          {
+            breakpoint: 768,
+            options: {
+              maxParticles: 80
+            }
+          }
+        ]
+      });
+      
+      // Loading animation behavior
+      const generateBtn = document.getElementById('generate-btn');
+      const appContainer = document.getElementById('generated-app-container');
+      const placeholderContent = document.querySelector('.placeholder-content');
+      const statusIndicator = document.querySelector('.status');
+      
+      generateBtn.addEventListener('click', function() {
+        appContainer.classList.add('generating');
+        placeholderContent.classList.add('loading');
+        statusIndicator.textContent = "Generating...";
+        
+        // Simulate generation process (remove in production)
+        setTimeout(() => {
+          appContainer.classList.remove('generating');
+          placeholderContent.classList.remove('loading');
+          statusIndicator.textContent = "Ready";
+        }, 3000);
+      });
+    }
+  </script>
+  
+  <script src="renderer.js"></script>
+</body>
+</html>
