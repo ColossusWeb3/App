@@ -2,95 +2,553 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src * self blob: data: gap:; style-src * self 'unsafe-inline' blob: data: gap:; script-src * 'self' 'unsafe-eval' 'unsafe-inline' blob: data: gap:; object-src * 'self' blob: data: gap:; img-src * self 'unsafe-inline' blob: data: gap:; connect-src self * 'unsafe-inline' blob: data: gap:; frame-src * self blob: data: gap:;">
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="The Future Computer - AI-powered app generator and Ethereum wallet">
   <title>The Future Computer</title>
-  <link rel="stylesheet" href="styles.css">
-  <!-- Adding Google Fonts for Roboto -->
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <!-- Embed critical CSS directly to avoid MIME type issues -->
+  <style id="criticalStyles">
+    /* Basic reset and core styles */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    html, body {
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: #111827;
+      background-color: #ffffff;
+    }
+    
+    .app-wrapper {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      width: 100%;
+    }
+    
+    /* Loading state until full CSS loads */
+    .loading-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-color: #ffffff;
+      z-index: 9999;
+    }
+    
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #6366f1;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    /* Fix for input styling to ensure it's visible and interactive */
+    input[type="text"] {
+      background-color: white;
+      color: #111827;
+      border: none;
+      outline: none;
+      font-size: 16px;
+      padding: 0 16px;
+      width: 100%;
+      height: 100%;
+      z-index: 5;
+      position: relative;
+    }
+    
+    .prompt-box {
+      position: relative;
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      border: 1px solid #e5e7eb;
+      display: flex;
+      height: 56px;
+    }
+  </style>
 </head>
+
 <body>
-  <div class="particle-container" id="particles-js"></div>
-  
-  <div class="app-container">
-    <div class="title-bar">
-      <div class="title">The Future Computer</div>
-      <div class="window-controls">
-        <span class="minimize"></span>
-        <span class="maximize"></span>
-        <span class="close"></span>
-      </div>
-    </div>
-    
-    <div class="main-interface">
-      <div class="prompt-section">
-        <div class="prompt-box">
-          <input type="text" id="prompt-input" placeholder="What would you like to create today?" />
-          <button id="generate-btn">Generate</button>
-        </div>
-      </div>
-      
-      <div class="app-container" id="generated-app-container">
-        <div class="placeholder-content">
-          <div class="loading-spinner">
-            <div class="particle-ring"></div>
-          </div>
-          <div class="logo-placeholder">
-            <div class="logo-inner"></div>
-          </div>
-          <p>Your generated app will appear here</p>
-        </div>
-      </div>
-    </div>
-    
-    <div class="status-bar">
-      <div class="status">Ready</div>
-      <div class="api-status">API: Connected</div>
-    </div>
+  <!-- Loading indicator that will be removed once CSS is loaded -->
+  <div class="loading-screen" id="loading-screen">
+    <div class="loading-spinner"></div>
+    <p style="margin-top: 20px;">Loading application...</p>
   </div>
 
-  <!-- Particle JS library -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/particlesjs/2.2.3/particles.min.js"></script>
-  
-  <!-- Custom script to initialize particles -->
+  <div class="app-wrapper">
+    <!-- App Header -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="logo">
+          <div class="logo-inner"></div>
+        </div>
+        <h1>The Future Computer</h1>
+      </div>
+      <div class="header-actions">
+        <div class="mode-selector">
+          <button class="mode-button active" data-mode="create">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+              <path d="M2 17l10 5 10-5"></path>
+              <path d="M2 12l10 5 10-5"></path>
+            </svg>
+            <span>Create</span>
+          </button>
+          <button class="mode-button" data-mode="wallet">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+              <path d="M22 10h-4a2 2 0 0 0-2 2v0a2 2 0 0 0 2 2h4"></path>
+            </svg>
+            <span>Wallet</span>
+          </button>
+        </div>
+        <div class="window-controls">
+          <button class="window-button minimize" aria-label="Minimize"></button>
+          <button class="window-button maximize" aria-label="Maximize"></button>
+          <button class="window-button close" aria-label="Close"></button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="app-content">
+      <!-- Create Mode -->
+      <section class="create-mode mode-panel active">
+        <!-- Input area with prompt box -->
+        <div class="prompt-container">
+          <div class="prompt-header">
+            <h2>Generate an app with AI</h2>
+            <p>Create custom applications with a natural language prompt</p>
+          </div>
+          <!-- Fixed input container -->
+          <div class="prompt-box" onclick="document.getElementById('prompt-input').focus()">
+            <input type="text" id="prompt-input" placeholder="Describe the app you want to create..." autocomplete="off" />
+            <button id="generate-btn" tabindex="0">
+              <span class="btn-text">Generate</span>
+              <span class="btn-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M5 12h14"></path>
+                  <path d="m12 5 7 7-7 7"></path>
+                </svg>
+              </span>
+            </button>
+          </div>
+          <div class="suggestion-chips">
+            <span class="suggestion-chip">Weather dashboard</span>
+            <span class="suggestion-chip">Task manager</span>
+            <span class="suggestion-chip">Recipe finder</span>
+            <span class="suggestion-chip">Code editor</span>
+            <span class="suggestion-chip">Finance calculator</span>
+            <span class="suggestion-chip">Quiz game</span>
+          </div>
+        </div>
+
+        <!-- Output area for generated app -->
+        <div class="app-container" id="generated-app-container">
+          <div class="placeholder-content">
+            <div class="loading-animation">
+              <div class="particles-ring"></div>
+              <div class="inner-spinner"></div>
+            </div>
+            <div class="placeholder-message">
+              <h2>Your AI App</h2>
+              <p>Generate an app with a natural language prompt</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Wallet Mode -->
+      <section class="wallet-mode mode-panel">
+        <div class="wallet-header">
+          <div class="wallet-info">
+            <div class="wallet-title">Ethereum Wallet</div>
+            <div class="address-container">
+              <span class="address-display" id="address">Loading address...</span>
+              <button class="copy-btn" id="copy-address" title="Copy to clipboard">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+              </button>
+            </div>
+            <div class="network-badge" id="network">Mainnet</div>
+          </div>
+          <div class="wallet-actions">
+            <button class="wallet-action-btn refresh-btn" id="refresh-view" title="Refresh">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
+                <path d="M21 3v5h-5"></path>
+                <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
+                <path d="M3 21v-5h5"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="dapp-browser">
+          <div class="shortcuts-container">
+            <div class="shortcuts">
+              <button class="site-btn" data-url="https://app.uniswap.org">
+                <span class="site-icon">🔄</span> Uniswap
+              </button>
+              <button class="site-btn" data-url="https://app.1inch.io">
+                <span class="site-icon">📊</span> 1inch
+              </button>
+              <button class="site-btn" data-url="https://app.aave.com">
+                <span class="site-icon">💰</span> Aave
+              </button>
+              <button class="site-btn" data-url="https://app.compound.finance">
+                <span class="site-icon">💎</span> Compound
+              </button>
+              <button class="site-btn" data-url="https://opensea.io">
+                <span class="site-icon">🖼️</span> OpenSea
+              </button>
+              <button class="site-btn" data-url="https://etherscan.io">
+                <span class="site-icon">🔍</span> Etherscan
+              </button>
+            </div>
+          </div>
+
+          <div class="url-bar">
+            <input type="text" class="url-input" id="url-input" placeholder="Enter URL...">
+            <button class="go-btn" id="navigate">Go</button>
+          </div>
+
+          <div class="webview-container">
+            <div class="loading-indicator" id="loading-indicator">
+              <div class="loading-bar"></div>
+            </div>
+            <!-- Note: The preload script path will be set dynamically in renderer.ts -->
+            <webview 
+              id="webview" 
+              src="https://app.uniswap.org" 
+              allowpopups
+              webpreferences="contextIsolation=yes, nodeIntegration=no, enableRemoteModule=no"
+              partition="persist:walletview">
+            </webview>
+            <div class="connection-status" id="connection-status">Wallet Connected</div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Bottom status bar -->
+    <footer class="status-bar">
+      <div class="status-item status">Ready</div>
+      <div class="status-item memory">Memory: 42MB</div>
+      <div class="status-item api-status">API: Connected</div>
+    </footer>
+
+    <!-- Toast notification -->
+    <div class="toast" id="toast">Address copied to clipboard</div>
+  </div>
+
+  <!-- Basic initialization script -->
   <script>
-    // Initialize particles
-    window.onload = function() {
-      // Particles background
-      Particles.init({
-        selector: '.particle-container',
-        color: ['#e4f1fe', '#c5eff7', '#b8e6f3'],
-        connectParticles: true,
-        responsive: [
-          {
-            breakpoint: 768,
-            options: {
-              maxParticles: 80
+    // Load the CSS programmatically instead of using link tag
+    document.addEventListener('DOMContentLoaded', function() {
+      // Fix the input focus issue immediately
+      const promptInput = document.getElementById('prompt-input');
+      if (promptInput) {
+        // Make sure the input is enabled and interactive
+        promptInput.removeAttribute('disabled');
+        promptInput.removeAttribute('readonly');
+        
+        // Add direct event handler
+        promptInput.addEventListener('click', function(e) {
+          // This prevents event propagation issues
+          e.stopPropagation();
+          this.focus();
+        });
+        
+        // Try focusing the input after a short delay
+        setTimeout(() => {
+          try {
+            promptInput.focus();
+            console.log('Focus set on input');
+          } catch (e) {
+            console.error('Could not focus input:', e);
+          }
+        }, 500);
+      }
+      
+      // Inject the CSS styles directly into the document to avoid MIME type issues
+      fetch('./index.css')
+        .then(response => response.text())
+        .then(cssText => {
+          // Create a style element and append it to the head
+          const styleElement = document.createElement('style');
+          styleElement.textContent = cssText;
+          document.head.appendChild(styleElement);
+          
+          // Hide the loading screen
+          document.getElementById('loading-screen').style.display = 'none';
+        })
+        .catch(error => {
+          console.error('Failed to load CSS:', error);
+          // Even if CSS fails to load, remove the loading screen
+          document.getElementById('loading-screen').style.display = 'none';
+        });
+      
+      // Basic initialization
+      initializeApp();
+    });
+
+    // Initialize app functionality
+    function initializeApp() {
+      // Mode switching functionality
+      const modeButtons = document.querySelectorAll('.mode-button');
+      const modePanels = document.querySelectorAll('.mode-panel');
+      
+      modeButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          const mode = button.getAttribute('data-mode');
+          
+          // Update active button
+          modeButtons.forEach(btn => btn.classList.remove('active'));
+          button.classList.add('active');
+          
+          // Show corresponding panel
+          modePanels.forEach(panel => {
+            if (panel.classList.contains(mode + '-mode')) {
+              panel.classList.add('active');
+            } else {
+              panel.classList.remove('active');
+            }
+          });
+        });
+      });
+
+      // Handle suggestions
+      const promptInput = document.getElementById('prompt-input');
+      const generateBtn = document.getElementById('generate-btn');
+      const suggestionChips = document.querySelectorAll('.suggestion-chip');
+      const statusElement = document.querySelector('.status');
+      
+      if (suggestionChips && promptInput) {
+        suggestionChips.forEach(chip => {
+          chip.addEventListener('click', () => {
+            promptInput.value = chip.textContent || '';
+            // Trigger focus on input
+            promptInput.focus();
+          });
+        });
+      }
+      
+      // Generate button functionality (placeholder)
+      if (generateBtn && promptInput) {
+        generateBtn.addEventListener('click', () => {
+          const prompt = promptInput.value.trim();
+          if (prompt) {
+            showToast('Generating app: ' + prompt);
+            if (statusElement) statusElement.textContent = 'Generating...';
+            
+            // Check if electronAPI is available
+            if (window.electronAPI && window.electronAPI.generateApp) {
+              window.electronAPI.generateApp(prompt)
+                .then(result => {
+                  console.log('App generation result:', result);
+                  if (result.success) {
+                    showToast('App generated successfully!');
+                    if (statusElement) statusElement.textContent = 'Ready';
+                  } else {
+                    showToast('Error: ' + (result.error || 'Unknown error'));
+                    if (statusElement) statusElement.textContent = 'Error';
+                  }
+                })
+                .catch(err => {
+                  console.error('Generation error:', err);
+                  showToast('Error generating app');
+                  if (statusElement) statusElement.textContent = 'Error';
+                });
+            } else {
+              // Fallback for when electronAPI is not available
+              showToast('API not available in this environment');
+            }
+          } else {
+            showToast('Please enter a prompt');
+          }
+        });
+      }
+      
+      // Initialize webview if present
+      const webview = document.getElementById('webview');
+      if (webview) {
+        // Handle webview events
+        webview.addEventListener('did-start-loading', function() {
+          document.getElementById('loading-indicator')?.classList.add('active');
+        });
+        
+        webview.addEventListener('did-stop-loading', function() {
+          document.getElementById('loading-indicator')?.classList.remove('active');
+        });
+        
+        // URL navigation
+        const urlInput = document.getElementById('url-input');
+        const navigateBtn = document.getElementById('navigate');
+        
+        if (urlInput) {
+          // Initialize URL input with webview src
+          urlInput.value = webview.getAttribute('src') || '';
+          
+          // Handle URL input enter key
+          urlInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+              navigateTo(urlInput.value);
+            }
+          });
+        }
+        
+        if (navigateBtn) {
+          navigateBtn.addEventListener('click', function() {
+            navigateTo(urlInput.value);
+          });
+        }
+        
+        // Handle site buttons
+        const siteButtons = document.querySelectorAll('.site-btn');
+        if (siteButtons) {
+          siteButtons.forEach(button => {
+            button.addEventListener('click', function() {
+              const url = button.getAttribute('data-url');
+              if (url) navigateTo(url);
+            });
+          });
+        }
+        
+        // Function to navigate to URL
+        function navigateTo(url) {
+          if (!url) return;
+          
+          // Make sure URL has protocol
+          if (!url.startsWith('http://') && !url.startsWith('https://')) {
+            url = 'https://' + url;
+          }
+          
+          webview.setAttribute('src', url);
+          if (urlInput) urlInput.value = url;
+        }
+      }
+      
+      // Copy address functionality
+      const copyBtn = document.getElementById('copy-address');
+      const addressDisplay = document.getElementById('address');
+      
+      if (copyBtn && addressDisplay) {
+        copyBtn.addEventListener('click', () => {
+          const address = addressDisplay.textContent;
+          if (address && address !== 'Loading address...') {
+            // Use clipboard API if available
+            if (navigator.clipboard) {
+              navigator.clipboard.writeText(address)
+                .then(() => showToast('Address copied to clipboard'))
+                .catch(() => showToast('Failed to copy address'));
+            } else {
+              // Fallback copy method
+              const textarea = document.createElement('textarea');
+              textarea.value = address;
+              textarea.style.position = 'fixed';
+              document.body.appendChild(textarea);
+              textarea.select();
+              try {
+                document.execCommand('copy');
+                showToast('Address copied to clipboard');
+              } catch (err) {
+                showToast('Failed to copy address');
+              }
+              document.body.removeChild(textarea);
             }
           }
-        ]
-      });
+        });
+      }
       
-      // Loading animation behavior
-      const generateBtn = document.getElementById('generate-btn');
-      const appContainer = document.getElementById('generated-app-container');
-      const placeholderContent = document.querySelector('.placeholder-content');
-      const statusIndicator = document.querySelector('.status');
+      // Window control functionality
+      const minimizeBtn = document.querySelector('.minimize');
+      const maximizeBtn = document.querySelector('.maximize');
+      const closeBtn = document.querySelector('.close');
       
-      generateBtn.addEventListener('click', function() {
-        appContainer.classList.add('generating');
-        placeholderContent.classList.add('loading');
-        statusIndicator.textContent = "Generating...";
+      if (window.electronAPI) {
+        if (minimizeBtn) {
+          minimizeBtn.addEventListener('click', () => {
+            window.electronAPI.minimizeWindow();
+          });
+        }
         
-        // Simulate generation process (remove in production)
+        if (maximizeBtn) {
+          maximizeBtn.addEventListener('click', () => {
+            window.electronAPI.maximizeWindow();
+          });
+        }
+        
+        if (closeBtn) {
+          closeBtn.addEventListener('click', () => {
+            window.electronAPI.closeWindow();
+          });
+        }
+      }
+      
+      // Toast notification functionality
+      function showToast(message) {
+        const toast = document.getElementById('toast');
+        if (!toast) return;
+        
+        toast.textContent = message;
+        toast.classList.add('show');
+        
         setTimeout(() => {
-          appContainer.classList.remove('generating');
-          placeholderContent.classList.remove('loading');
-          statusIndicator.textContent = "Ready";
+          toast.classList.remove('show');
         }, 3000);
-      });
+      }
     }
+
+    // Add an additional method to debug input interactions
+    window.addEventListener('load', function() {
+      console.log('Window loaded, checking input...');
+      const input = document.getElementById('prompt-input');
+      if (input) {
+        console.log('Input found, adding debug handlers');
+        
+        // Register events to help diagnose issues
+        input.addEventListener('focus', () => console.log('Input focused'));
+        input.addEventListener('blur', () => console.log('Input blurred'));
+        input.addEventListener('click', () => console.log('Input clicked'));
+        input.addEventListener('mousedown', () => console.log('Input mousedown'));
+        
+        // Try to force focus on page load
+        setTimeout(() => {
+          try {
+            input.focus();
+            console.log('Focus set via timeout');
+          } catch (e) {
+            console.error('Focus error:', e);
+          }
+        }, 1000);
+      } else {
+        console.warn('Input element not found!');
+      }
+    });
   </script>
-  
-  <script src="renderer.js"></script>
 </body>
 </html>
