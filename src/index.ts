@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, session } from 'electron';
 import { OpenAI } from 'openai';
 import fs from 'fs';
 import path from 'path';
@@ -22,68 +22,71 @@ const anthropic = new Anthropic({
 });
 
 // Updated system prompt optimized for Claude
-const updatedSystemPrompt = `You are an expert UI/UX designer and developer who creates futuristic mini-applications.
-Create a fully functional mini-app based on the user's request.
+const updatedSystemPrompt = `You are an expert UI/UX designer and developer specializing in futuristic mini-applications. Your goal is to create a fully functional mini-app based on the user's request while ensuring a smooth and visually appealing experience.  
 
-First enhance the user's prompt by understanding their intent to ensure a great user experience. 
+## Key Enhancements for the Mini-App:  
 
-Your response MUST be valid JSON with no special characters, control characters, or invalid syntax.
+1. **Intuitive UI/UX:**  
+   - Clean, modern, and futuristic design with smooth animations and interactive elements.  
+   - Responsive layout that adapts to different screen sizes.  
+   - Light-themed design system for a visually appealing interface.  
 
-Return a JSON object with exactly these three properties:
-1. html: The HTML structure of the app (valid HTML only)
-2. styles: CSS styles for the app (valid CSS only)
-3. logic: JavaScript code that implements the app's functionality (valid JavaScript only)
+2. **Functionality & Features:**  
+   - Implement the main requested functionality effectively.  
+   - Include necessary sideline features that enhance usability, such as input validation, loading indicators, and success/error toasts.  
+   - Provide real-time interactivity and smooth user feedback.  
 
-Format guidelines:
-- Escape all double quotes inside string values with backslash \\".
-- Do not use single quotes for JSON property names.
-- Avoid using non-ASCII characters or control characters.
-- Ensure all code is properly formatted and syntactically valid.
+3. **Integration with APIs (if applicable):**  
+   - Support for **IPFS uploads** using the provided API:  
+     
+     curl -X POST -H "Content-Type: application/json" -d '{"query": "Upload this data to IPFS: your string here"}' https://backend-b2mv.onrender.com/api/agent
+     
+   - Support for **posting to Farcaster** using the provided API:  
+     
+     curl -X POST -H "Content-Type: application/json" -d '{"query": "Post this to Farcaster: Hello from agent!"}' https://backend-b2mv.onrender.com/api/agent
+     
+   - Handle API responses gracefully and display relevant messages to the user.  
 
-Your app should be visually attractive with a light, modern design. Use CSS features
-like subtle gradients, appropriate shadows, and smooth animations. The app should be fully functional
-and should work within an Electron environment.
+4. **Styling & Design Guidelines:**  
+   - Use CSS variables to maintain consistency:  
 
-Example of correct JSON structure:
+     /* Core colors */
+     var(--accent-primary);
+     var(--accent-secondary);
+     var(--bg-primary);
+     var(--text-primary);
+
+     /* Spacing */
+     var(--spacing-xs);
+     var(--spacing-sm);
+     var(--spacing-md);
+     var(--spacing-lg);
+     
+   - Use tailwindcss as much you like, to ensure a good ui & less css needed.
+   - Apply subtle gradients, box shadows, and smooth transitions to create a futuristic look.  
+   - Use card-based layouts, clear typography, and well-defined call-to-action buttons.  
+
+## Expected JSON Output:  
+Your response MUST be a valid JSON object with these three properties:  
+
+1. **"html"** → The HTML structure of the app. (Valid HTML only)  
+2. **"styles"** → CSS styles for the app. (Valid CSS only)  
+3. **"logic"** → JavaScript code that implements the app’s functionality. (Valid JavaScript only)  
+
+### Formatting Rules:  
+- Escape all double quotes inside string values with backslashes: \"  
+- Do **not** use single quotes for JSON property names.  
+- Ensure all code is properly formatted and syntactically valid.  
+- The app should work seamlessly within an **Electron** environment.  
+
+## Example Output:  
 {
   "html": "<div id=\\"app\\">...</div>",
   "styles": "body { font-family: sans-serif; }",
   "logic": "document.addEventListener(\\"DOMContentLoaded\\", function() { ... });"
 }
-  
 
-Here's come guidelines for using css styles:
-# Light Theme Design System
-
-This clean, minimalist design system provides a foundation for AI-generated applications with a focus on readability and modern aesthetics. All styling is self-contained with no external dependencies.
-
-## Components
-
-### Container Structure
-For consistent layout, use this hierarchy:
-<div class="ai-app-wrapper">
-  <header class="ai-app-header">Title/Nav Content</header>
-  <main class="ai-app-content">Main Content Area</main>
-  <footer class="ai-app-footer">Status/Actions</footer>
-</div>
-
-
-### Color System
-Access via CSS variables:
-/* Core colors */
-var(--accent-primary) 
-var(--accent-secondary)
-var(--bg-primary) 
-var(--text-primary) 
-
-### Spacing System
-Use consistent spacing:
-var(--spacing-xs) 
-var(--spacing-sm) 
-var(--spacing-md) 
-var(--spacing-lg) 
-
-The light theme creates a professional, clean experience that puts content first while providing delightful interactive elements.
+Return valid JSON with properly escaped special characters (\n, \t, \r, \", \\) and no unescaped control characters. All string values containing code must have doubled backslashes where needed.
 `;
 
 // This allows TypeScript to pick up the magic constants that's auto-generated by Forge's Webpack
@@ -98,6 +101,17 @@ if (require('electron-squirrel-startup')) {
 }
 
 const createWindow = (): void => {
+  session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+    callback({
+      responseHeaders: {
+        ...details.responseHeaders,
+        'Content-Security-Policy': [
+          "default-src * 'self' blob: data:; style-src * 'self' 'unsafe-inline' blob: data:; script-src * 'self' 'unsafe-eval' 'unsafe-inline' blob: data: https://cdn.tailwindcss.com https://cdn.jsdelivr.net; object-src * 'self' blob: data:; img-src * 'self' 'unsafe-inline' blob: data:; connect-src * 'self' 'unsafe-inline' blob: data:; frame-src * 'self' blob: data:"
+        ]
+      }
+    });
+  });
+
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     height: 800,
@@ -111,6 +125,7 @@ const createWindow = (): void => {
     },
   });
 
+  
   // and load the index.html of the app.
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
@@ -377,8 +392,8 @@ function parseAppDataFromResponse(responseContent: string): { html: string; styl
 async function generateAppFromPrompt(prompt: string) {
   const message = await anthropic.messages.create({
     model: "claude-3-5-sonnet-latest", // You can also use "claude-3-opus-20240229" for higher quality or "claude-3-haiku-20240307" for faster responses
-    max_tokens: 4000,
-    temperature: 0.7,
+    max_tokens: 4090,
+    temperature: 0.5,
     system: updatedSystemPrompt,
     messages: [
       {
@@ -389,12 +404,12 @@ async function generateAppFromPrompt(prompt: string) {
   });
 
   // Extract the response content
-  console.log('response', message.content)
 
   let responseContent = '';
   const textBlock = message.content.find((item) => item.type === 'text');
   if (textBlock && 'text' in textBlock) {
     responseContent = textBlock.text;
+    console.log('response', responseContent)
   } else {
     console.warn('No text block found in Claude response');
   }

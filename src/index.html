@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src * self blob: data: gap:; style-src * self 'unsafe-inline' blob: data: gap:; script-src * 'self' 'unsafe-eval' 'unsafe-inline' blob: data: gap:; object-src * 'self' blob: data: gap:; img-src * self 'unsafe-inline' blob: data: gap:; connect-src self * 'unsafe-inline' blob: data: gap:; frame-src * self blob: data: gap:;">
-
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="The Future Computer - AI-powered app generator and Ethereum wallet">
+  <meta http-equiv="Content-Security-Policy" content="default-src * self blob: data: gap:; style-src * self 'unsafe-inline' blob: data: gap:; script-src * 'self' 'unsafe-eval' 'unsafe-inline' blob: data: gap: https://cdn.tailwindcss.com https://cdn.jsdelivr.net; object-src * 'self' blob: data: gap:; img-src * self 'unsafe-inline' blob: data: gap:; connect-src self * 'unsafe-inline' blob: data: gap:; frame-src * self blob: data: gap:;">
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <title>The Future Computer</title>
   <!-- Embed critical CSS directly to avoid MIME type issues -->
   <style id="criticalStyles">
@@ -61,29 +61,90 @@
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
-    
-    /* Fix for input styling to ensure it's visible and interactive */
-    input[type="text"] {
-      background-color: white;
-      color: #111827;
+
+    /* Fullscreen button styles */
+    .fullscreen-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background-color: rgba(0, 0, 0, 0.3);
+      color: white;
       border: none;
-      outline: none;
-      font-size: 16px;
-      padding: 0 16px;
-      width: 100%;
-      height: 100%;
-      z-index: 5;
-      position: relative;
+      border-radius: 4px;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 100;
+      transition: background-color 0.2s ease;
+    }
+
+    .fullscreen-btn:hover {
+      background-color: rgba(0, 0, 0, 0.5);
     }
     
-    .prompt-box {
-      position: relative;
-      border-radius: 12px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-      overflow: hidden;
-      border: 1px solid #e5e7eb;
+    /* App controls container */
+    .app-controls {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 1000; /* Higher z-index to stay above generated content */
+    }
+    
+    /* Create mode layout adjustments */
+    .create-mode {
+      position: relative; /* Ensure positioning context for absolute elements */
+    }
+
+    /* Fullscreen mode styles */
+    .fullscreen-mode {
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      z-index: 1000 !important;
+      background-color: white;
+      overflow: auto !important;
+    }
+    
+    /* Mock generated app styles for testing */
+    .mock-generated-app {
+      padding: 20px;
+      height: 100%;
       display: flex;
-      height: 56px;
+      flex-direction: column;
+    }
+    
+    .mock-app-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin-top: 20px;
+    }
+    
+    .mock-ui-element {
+      height: 100px;
+      background-color: #f0f0f0;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+    
+    .mock-ui-buttons {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .mock-button {
+      padding: 8px 16px;
+      background-color: #6366f1;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
     }
   </style>
 </head>
@@ -137,13 +198,12 @@
         <!-- Input area with prompt box -->
         <div class="prompt-container">
           <div class="prompt-header">
-            <h2>Generate an app with AI</h2>
-            <p>Create custom applications with a natural language prompt</p>
+            <h2>Welcome, back!</h2>
+            <p>What would you like to do today?</p>
           </div>
-          <!-- Fixed input container -->
-          <div class="prompt-box" onclick="document.getElementById('prompt-input').focus()">
-            <input type="text" id="prompt-input" placeholder="Describe the app you want to create..." autocomplete="off" />
-            <button id="generate-btn" tabindex="0">
+          <div class="prompt-box">
+            <input type="text" id="prompt-input" placeholder="Describe the app you want to create..." />
+            <button id="generate-btn">
               <span class="btn-text">Generate</span>
               <span class="btn-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
@@ -155,11 +215,10 @@
             </button>
           </div>
           <div class="suggestion-chips">
-            <span class="suggestion-chip">Weather dashboard</span>
-            <span class="suggestion-chip">Task manager</span>
-            <span class="suggestion-chip">Recipe finder</span>
-            <span class="suggestion-chip">Code editor</span>
-            <span class="suggestion-chip">Finance calculator</span>
+            <span class="suggestion-chip">Live ETH Price</span>
+            <span class="suggestion-chip">Do a farcaster cast</span>
+            <span class="suggestion-chip">ETH vs SOL news</span>
+            <span class="suggestion-chip">How's vitalik doing?</span>
             <span class="suggestion-chip">Quiz game</span>
           </div>
         </div>
@@ -172,10 +231,21 @@
               <div class="inner-spinner"></div>
             </div>
             <div class="placeholder-message">
-              <h2>Your AI App</h2>
-              <p>Generate an app with a natural language prompt</p>
+              <h2>Your Own App</h2>
+              <p>An app would show up here</p>
             </div>
           </div>
+        </div>
+        <!-- Fullscreen button as a sibling rather than a child to prevent it from being replaced -->
+        <div class="app-controls">
+          <button class="fullscreen-btn" id="app-fullscreen-btn" title="Toggle fullscreen">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M8 3H5a2 2 0 0 0-2 2v3"></path>
+              <path d="M21 8V5a2 2 0 0 0-2-2h-3"></path>
+              <path d="M3 16v3a2 2 0 0 0 2 2h3"></path>
+              <path d="M16 21h3a2 2 0 0 0 2-2v-3"></path>
+            </svg>
+          </button>
         </div>
       </section>
 
@@ -237,17 +307,20 @@
           </div>
 
           <div class="webview-container">
+            <!-- Add fullscreen button -->
+            <button class="fullscreen-btn" id="webview-fullscreen-btn" title="Toggle fullscreen">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M8 3H5a2 2 0 0 0-2 2v3"></path>
+                <path d="M21 8V5a2 2 0 0 0-2-2h-3"></path>
+                <path d="M3 16v3a2 2 0 0 0 2 2h3"></path>
+                <path d="M16 21h3a2 2 0 0 0 2-2v-3"></path>
+              </svg>
+            </button>
             <div class="loading-indicator" id="loading-indicator">
               <div class="loading-bar"></div>
             </div>
-            <!-- Note: The preload script path will be set dynamically in renderer.ts -->
-            <webview 
-              id="webview" 
-              src="https://app.uniswap.org" 
-              allowpopups
-              webpreferences="contextIsolation=yes, nodeIntegration=no, enableRemoteModule=no"
-              partition="persist:walletview">
-            </webview>
+            <!-- Simple webview without preload script -->
+            <webview id="webview" src="https://app.uniswap.org"></webview>
             <div class="connection-status" id="connection-status">Wallet Connected</div>
           </div>
         </div>
@@ -258,7 +331,7 @@
     <footer class="status-bar">
       <div class="status-item status">Ready</div>
       <div class="status-item memory">Memory: 42MB</div>
-      <div class="status-item api-status">API: Connected</div>
+      <div class="status-item api-status">Blockchain: Connected</div>
     </footer>
 
     <!-- Toast notification -->
@@ -269,31 +342,6 @@
   <script>
     // Load the CSS programmatically instead of using link tag
     document.addEventListener('DOMContentLoaded', function() {
-      // Fix the input focus issue immediately
-      const promptInput = document.getElementById('prompt-input');
-      if (promptInput) {
-        // Make sure the input is enabled and interactive
-        promptInput.removeAttribute('disabled');
-        promptInput.removeAttribute('readonly');
-        
-        // Add direct event handler
-        promptInput.addEventListener('click', function(e) {
-          // This prevents event propagation issues
-          e.stopPropagation();
-          this.focus();
-        });
-        
-        // Try focusing the input after a short delay
-        setTimeout(() => {
-          try {
-            promptInput.focus();
-            console.log('Focus set on input');
-          } catch (e) {
-            console.error('Could not focus input:', e);
-          }
-        }, 500);
-      }
-      
       // Inject the CSS styles directly into the document to avoid MIME type issues
       fetch('./index.css')
         .then(response => response.text())
@@ -373,6 +421,15 @@
                   if (result.success) {
                     showToast('App generated successfully!');
                     if (statusElement) statusElement.textContent = 'Ready';
+                    
+                    // Ensure fullscreen button is visible after app generation
+                    // This is required because app generation replaces the content
+                    const appControls = document.querySelector('.app-controls');
+                    const createMode = document.querySelector('.create-mode');
+                    if (appControls && createMode) {
+                      createMode.appendChild(appControls);
+                      appControls.style.display = 'block';
+                    }
                   } else {
                     showToast('Error: ' + (result.error || 'Unknown error'));
                     if (statusElement) statusElement.textContent = 'Error';
@@ -386,6 +443,38 @@
             } else {
               // Fallback for when electronAPI is not available
               showToast('API not available in this environment');
+              
+              // Simulate app generation for testing (mock content replacement)
+              setTimeout(() => {
+                const appContainer = document.getElementById('generated-app-container');
+                if (appContainer) {
+                  appContainer.innerHTML = `
+                    <div class="mock-generated-app">
+                      <h2>Generated App: ${prompt}</h2>
+                      <div class="mock-app-content">
+                        <p>This is a mock generated app based on your prompt: "${prompt}"</p>
+                        <div class="mock-ui-element"></div>
+                        <div class="mock-ui-element"></div>
+                        <div class="mock-ui-buttons">
+                          <button class="mock-button">Button 1</button>
+                          <button class="mock-button">Button 2</button>
+                        </div>
+                      </div>
+                    </div>
+                  `;
+                  
+                  // Ensure fullscreen button is visible after mock app generation
+                  const appControls = document.querySelector('.app-controls');
+                  const createMode = document.querySelector('.create-mode');
+                  if (appControls && createMode) {
+                    createMode.appendChild(appControls);
+                    appControls.style.display = 'block';
+                  }
+                  
+                  showToast('Mock app generated for testing');
+                  if (statusElement) statusElement.textContent = 'Ready';
+                }
+              }, 1500);
             }
           } else {
             showToast('Please enter a prompt');
@@ -521,34 +610,105 @@
           toast.classList.remove('show');
         }, 3000);
       }
-    }
 
-    // Add an additional method to debug input interactions
-    window.addEventListener('load', function() {
-      console.log('Window loaded, checking input...');
-      const input = document.getElementById('prompt-input');
-      if (input) {
-        console.log('Input found, adding debug handlers');
+      // Fullscreen functionality for app container
+      const appContainer = document.getElementById('generated-app-container');
+      const appFullscreenBtn = document.getElementById('app-fullscreen-btn');
+      
+      if (appContainer && appFullscreenBtn) {
+        appFullscreenBtn.addEventListener('click', () => {
+          toggleFullscreen(appContainer, appFullscreenBtn);
+        });
         
-        // Register events to help diagnose issues
-        input.addEventListener('focus', () => console.log('Input focused'));
-        input.addEventListener('blur', () => console.log('Input blurred'));
-        input.addEventListener('click', () => console.log('Input clicked'));
-        input.addEventListener('mousedown', () => console.log('Input mousedown'));
-        
-        // Try to force focus on page load
-        setTimeout(() => {
-          try {
-            input.focus();
-            console.log('Focus set via timeout');
-          } catch (e) {
-            console.error('Focus error:', e);
-          }
-        }, 1000);
-      } else {
-        console.warn('Input element not found!');
+        // Ensure the button is visible after app generation
+        const createMode = document.querySelector('.create-mode');
+        if (createMode) {
+          // Move button outside the container that gets replaced
+          createMode.appendChild(document.querySelector('.app-controls'));
+        }
       }
-    });
+
+      // Fullscreen functionality for webview container
+      const webviewContainer = document.querySelector('.webview-container');
+      const webviewFullscreenBtn = document.getElementById('webview-fullscreen-btn');
+      
+      if (webviewContainer && webviewFullscreenBtn) {
+        webviewFullscreenBtn.addEventListener('click', () => {
+          toggleFullscreen(webviewContainer, webviewFullscreenBtn);
+        });
+      }
+
+      // Function to toggle fullscreen for any element
+      function toggleFullscreen(element, button) {
+        if (element.classList.contains('fullscreen-mode')) {
+          // Exit fullscreen
+          element.classList.remove('fullscreen-mode');
+          
+          // Change icon to expand
+          button.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M8 3H5a2 2 0 0 0-2 2v3"></path>
+              <path d="M21 8V5a2 2 0 0 0-2-2h-3"></path>
+              <path d="M3 16v3a2 2 0 0 0 2 2h3"></path>
+              <path d="M16 21h3a2 2 0 0 0 2-2v-3"></path>
+            </svg>
+          `;
+          
+          // Show other UI elements that might be hidden
+          document.querySelector('.app-header').style.display = '';
+          document.querySelector('.status-bar').style.display = '';
+          
+          showToast('Exited fullscreen mode');
+        } else {
+          // Enter fullscreen
+          element.classList.add('fullscreen-mode');
+          
+          // Change icon to collapse
+          button.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M8 3v3a2 2 0 0 1-2 2H3"></path>
+              <path d="M21 8h-3a2 2 0 0 1-2-2V3"></path>
+              <path d="M3 16h3a2 2 0 0 1 2 2v3"></path>
+              <path d="M16 21v-3a2 2 0 0 1 2-2h3"></path>
+            </svg>
+          `;
+          
+          // Hide other UI elements for true fullscreen experience
+          document.querySelector('.app-header').style.display = 'none';
+          document.querySelector('.status-bar').style.display = 'none';
+          
+          showToast('Entered fullscreen mode');
+        }
+      }
+
+      // Keyboard shortcut for fullscreen (F11 or Esc)
+      document.addEventListener('keydown', (e) => {
+        // F11 for fullscreen
+        if (e.key === 'F11') {
+          e.preventDefault();
+          
+          // Toggle fullscreen for the active panel
+          const activePanel = document.querySelector('.mode-panel.active');
+          if (activePanel.classList.contains('create-mode')) {
+            toggleFullscreen(appContainer, appFullscreenBtn);
+          } else if (activePanel.classList.contains('wallet-mode')) {
+            toggleFullscreen(webviewContainer, webviewFullscreenBtn);
+          }
+        }
+        
+        // ESC to exit fullscreen
+        if (e.key === 'Escape') {
+          const fullscreenElements = document.querySelectorAll('.fullscreen-mode');
+          fullscreenElements.forEach(element => {
+            if (element.id === 'generated-app-container') {
+              toggleFullscreen(element, appFullscreenBtn);
+            } else if (element.classList.contains('webview-container')) {
+              toggleFullscreen(element, webviewFullscreenBtn);
+            }
+          });
+        }
+      });
+    }
   </script>
 </body>
 </html>

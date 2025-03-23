@@ -567,23 +567,6 @@ input, button, .suggestion-chip {
   width: fit-content;
 }
 
-.wallet-actions {
-  display: flex;
-  gap: var(--spacing-sm);
-}
-
-.wallet-action-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  background: var(--bg-tertiary);
-  border-radius: 50%;
-  color: var(--text-secondary);
-  transition: all var(--transition-fast) ease;
-}
-
 .wallet-action-btn:hover {
   background: var(--hover-bg);
   color: var(--accent-primary);
@@ -961,4 +944,117 @@ webview {
   --ai-text-primary: var(--text-primary);
   --ai-text-secondary: var(--text-secondary);
   --ai-border: var(--border-color);
+}
+
+/* Fullscreen related styles to add to your CSS file */
+
+/* App controls for fullscreen button */
+.app-controls {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 10;
+  display: flex;
+  gap: 8px;
+  opacity: 0.4;
+  transition: opacity 0.2s ease;
+}
+
+.app-controls:hover {
+  opacity: 1;
+}
+
+.fullscreen-btn, 
+.exit-fullscreen-btn {
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #6366f1;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.fullscreen-btn:hover, 
+.exit-fullscreen-btn:hover {
+  background-color: #f9fafb;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Fullscreen container styles */
+.fullscreen-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1000;
+  background-color: #ffffff;
+  display: none;
+}
+
+.fullscreen-controls {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 1010;
+  display: flex;
+  gap: 8px;
+}
+
+.exit-fullscreen-btn {
+  width: auto;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#app-fullscreen-content,
+#webview-fullscreen-content {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Add animation for smooth transition */
+.fullscreen-container {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Additional styles for wallet action buttons */
+.wallet-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wallet-action-btn {
+  background-color: rgba(255, 255, 255, 0.8);
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #6366f1;
+}
+
+.wallet-action-btn:hover {
+  background-color: #f9fafb;
+  transform: translateY(-1px);
 }
