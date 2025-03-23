@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, session } from 'electron';
+import { app, BrowserWindow, ipcMain, session, dialog } from 'electron';
 import { OpenAI } from 'openai';
 import fs from 'fs';
 import path from 'path';
@@ -654,5 +654,133 @@ ipcMain.handle('wallet-request', async (event, args) => {
     }
   } catch (error) {
     throw error;
+  }
+});
+
+
+ipcMain.handle('store-app-locally', async (event, appData) => {
+  try {
+    // Open a save dialog
+    const { canceled, filePath } = await dialog.showSaveDialog({
+      title: 'Save App',
+      defaultPath: path.join(app.getPath('documents'), 'Future Computer Apps', `app-${Date.now()}`),
+      buttonLabel: 'Save App',
+      properties: ['createDirectory']
+    });
+
+    if (canceled || !filePath) {
+      return { success: false, message: 'Save operation canceled' };
+    }
+
+    // Create directory if it doesn't exist
+    const appDir = filePath;
+    fs.mkdirSync(appDir, { recursive: true });
+
+    // Write app files
+    fs.writeFileSync(path.join(appDir, 'app.js'), appData.logic);
+    fs.writeFileSync(path.join(appDir, 'app.css'), appData.styles);
+    fs.writeFileSync(path.join(appDir, 'app.html'), appData.html);
+    
+    // Save metadata
+    const metadata = {
+      name: path.basename(appDir),
+      createdAt: new Date().toISOString(),
+      lastOpened: new Date().toISOString(),
+      path: appDir
+    };
+    fs.writeFileSync(path.join(appDir, 'metadata.json'), JSON.stringify(metadata, null, 2));
+
+    // Return success
+    return { 
+      success: true, 
+      message: 'App saved successfully',
+      metadata: metadata
+    };
+  } catch (error) {
+    console.error('Error storing app locally:', error);
+    return { 
+      success: false, 
+      message: 'Failed to save app: ' + error.message 
+    };
+  }
+});
+
+ipcMain.handle('get-stored-apps', async (event) => {
+  try {
+    const appsDirectory = path.join(app.getPath('userData'), 'stored-apps');
+    
+    // Create directory if it doesn't exist
+    if (!fs.existsSync(appsDirectory)) {
+      fs.mkdirSync(appsDirectory, { recursive: true });
+      return { success: true, apps: [] };
+    }
+    
+    // Get all subdirectories
+    const entries = fs.readdirSync(appsDirectory, { withFileTypes: true });
+    const appDirs = entries.filter(entry => entry.isDirectory());
+    
+    // Collect metadata from each app
+    const apps = [];
+    for (const dir of appDirs) {
+      const appPath = path.join(appsDirectory, dir.name);
+      const metadataPath = path.join(appPath, 'metadata.json');
+      
+      if (fs.existsSync(metadataPath)) {
+        try {
+          const metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf8'));
+          apps.push(metadata);
+        } catch (e) {
+          console.warn(`Invalid metadata for app ${dir.name}:`, e);
+        }
+      }
+    }
+    
+    return { success: true, apps: apps };
+  } catch (error) {
+    console.error('Error getting stored apps:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle('load-stored-app', async (event, appPath) => {
+  try {
+    const htmlPath = path.join(appPath, 'app.html');
+    const cssPath = path.join(appPath, 'app.css');
+    const jsPath = path.join(appPath, 'app.js');
+    
+    // Update metadata
+    const metadataPath = path.join(appPath, 'metadata.json');
+    if (fs.existsSync(metadataPath)) {
+      try {
+        const metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf8'));
+        metadata.lastOpened = new Date().toISOString();
+        fs.writeFileSync(metadataPath, JSON.stringify(metadata, null, 2));
+      } catch (e) {
+        console.warn('Failed to update metadata:', e);
+      }
+    }
+    
+    // Read app files
+    const html = fs.readFileSync(htmlPath, 'utf8');
+    const styles = fs.readFileSync(cssPath, 'utf8');
+    const logic = fs.readFileSync(jsPath, 'utf8');
+    
+    return {
+      success: true,
+      appData: { html, styles, logic }
+    };
+  } catch (error) {
+    console.error('Error loading stored app:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle('delete-stored-app', async (event, appPath) => {
+  try {
+    fs.rmSync(appPath, { recursive: true, force: true });
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting stored app:', error);
+    return { success: false, error: error.message };
   }
 });

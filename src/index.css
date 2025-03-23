@@ -759,6 +759,10 @@ webview {
   font-size: 13px;
   color: var(--text-secondary);
   height: var(--footer-height);
+
+
+  position: relative;
+  z-index: 850;
 }
 
 .status-item {
@@ -1057,4 +1061,198 @@ webview {
 .wallet-action-btn:hover {
   background-color: #f9fafb;
   transform: translateY(-1px);
+}
+
+/* Add these CSS rules to your existing styles */
+
+/* Stored Apps Drawer */
+.stored-apps-drawer {
+  position: fixed;
+  bottom: var(--footer-height);
+  left: 0;
+  width: 100%;
+  height: 300px;
+  background-color: var(--bg-primary);
+  border-top: 1px solid var(--border-color);
+  box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.05);
+  z-index: 900;
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+}
+
+.stored-apps-drawer.open {
+  transform: translateY(0);
+}
+
+.drawer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.drawer-header h3 {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.close-drawer-btn {
+  background: none;
+  border: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.close-drawer-btn:hover {
+  color: var(--text-primary);
+  background-color: var(--hover-bg);
+}
+
+.drawer-content {
+  padding: 16px;
+  overflow-y: auto;
+  height: calc(100% - 40px);
+}
+
+.apps-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.app-card {
+  background-color: var(--card-bg);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.app-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.app-card-header {
+  padding: 12px;
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--bg-secondary);
+}
+
+.app-name {
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.app-card-content {
+  padding: 12px;
+}
+
+.app-meta {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  margin-bottom: 8px;
+}
+
+.app-card-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+}
+
+.app-card-btn {
+  background-color: var(--bg-secondary);
+  border: none;
+  border-radius: 4px;
+  padding: 6px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.app-card-btn:hover {
+  background-color: var(--hover-bg);
+}
+
+.app-card-btn.delete-btn {
+  color: var(--error);
+}
+
+.app-card-btn.delete-btn:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+.empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 32px;
+  color: var(--text-tertiary);
+}
+
+/* Drawer Toggle Button */
+.drawer-toggle {
+  position: fixed;
+  bottom: var(--footer-height);
+  left: 50%;
+  transform: translateX(-50%) translateY(50%);
+  z-index: 901;
+}
+
+.drawer-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--accent-primary);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  transition: all 0.2s;
+}
+
+.drawer-toggle-btn:hover {
+  background-color: var(--accent-secondary);
+  transform: translateY(-2px);
+}
+
+/* App Actions */
+.app-actions {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  z-index: 100; /* Hidden by default, shown when app is generated */
+}
+
+.store-app-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--accent-primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  transition: all 0.2s;
+}
+
+.store-app-btn:hover {
+  background-color: var(--accent-secondary);
+  transform: translateY(-2px);
 }

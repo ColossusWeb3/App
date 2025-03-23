@@ -1,22 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="The Future Computer - AI-powered app generator and Ethereum wallet">
-  <meta http-equiv="Content-Security-Policy" content="default-src * self blob: data: gap:; style-src * self 'unsafe-inline' blob: data: gap:; script-src * 'self' 'unsafe-eval' 'unsafe-inline' blob: data: gap: https://cdn.tailwindcss.com https://cdn.jsdelivr.net; object-src * 'self' blob: data: gap:; img-src * self 'unsafe-inline' blob: data: gap:; connect-src self * 'unsafe-inline' blob: data: gap:; frame-src * self blob: data: gap:;">
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src * self blob: data: gap:; style-src * self 'unsafe-inline' blob: data: gap:; script-src * 'self' 'unsafe-eval' 'unsafe-inline' blob: data: gap: https://cdn.tailwindcss.com https://cdn.jsdelivr.net; object-src * 'self' blob: data: gap:; img-src * self 'unsafe-inline' blob: data: gap:; connect-src self * 'unsafe-inline' blob: data: gap:; frame-src * self blob: data: gap:;">
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <title>The Future Computer</title>
   <!-- Embed critical CSS directly to avoid MIME type issues -->
   <style id="criticalStyles">
     /* Basic reset and core styles */
-    *, *::before, *::after {
+    *,
+    *::before,
+    *::after {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
-    
-    html, body {
+
+    html,
+    body {
       height: 100%;
       width: 100%;
       overflow: hidden;
@@ -24,7 +29,7 @@
       color: #111827;
       background-color: #ffffff;
     }
-    
+
     .app-wrapper {
       position: relative;
       display: flex;
@@ -32,7 +37,7 @@
       height: 100vh;
       width: 100%;
     }
-    
+
     /* Loading state until full CSS loads */
     .loading-screen {
       position: fixed;
@@ -47,7 +52,7 @@
       background-color: #ffffff;
       z-index: 9999;
     }
-    
+
     .loading-spinner {
       width: 40px;
       height: 40px;
@@ -56,10 +61,15 @@
       border-radius: 50%;
       animation: spin 1s linear infinite;
     }
-    
+
     @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
     }
 
     /* Fullscreen button styles */
@@ -84,18 +94,20 @@
     .fullscreen-btn:hover {
       background-color: rgba(0, 0, 0, 0.5);
     }
-    
+
     /* App controls container */
     .app-controls {
       position: absolute;
       top: 10px;
       right: 10px;
-      z-index: 1000; /* Higher z-index to stay above generated content */
+      z-index: 1000;
+      /* Higher z-index to stay above generated content */
     }
-    
+
     /* Create mode layout adjustments */
     .create-mode {
-      position: relative; /* Ensure positioning context for absolute elements */
+      position: relative;
+      /* Ensure positioning context for absolute elements */
     }
 
     /* Fullscreen mode styles */
@@ -109,7 +121,7 @@
       background-color: white;
       overflow: auto !important;
     }
-    
+
     /* Mock generated app styles for testing */
     .mock-generated-app {
       padding: 20px;
@@ -117,7 +129,7 @@
       display: flex;
       flex-direction: column;
     }
-    
+
     .mock-app-content {
       flex: 1;
       display: flex;
@@ -125,19 +137,19 @@
       gap: 20px;
       margin-top: 20px;
     }
-    
+
     .mock-ui-element {
       height: 100px;
       background-color: #f0f0f0;
       border-radius: 8px;
       margin-bottom: 10px;
     }
-    
+
     .mock-ui-buttons {
       display: flex;
       gap: 10px;
     }
-    
+
     .mock-button {
       padding: 8px 16px;
       background-color: #6366f1;
@@ -168,7 +180,8 @@
       <div class="header-actions">
         <div class="mode-selector">
           <button class="mode-button active" data-mode="create">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
               <path d="M2 17l10 5 10-5"></path>
               <path d="M2 12l10 5 10-5"></path>
@@ -176,7 +189,8 @@
             <span>Create</span>
           </button>
           <button class="mode-button" data-mode="wallet">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <rect x="2" y="5" width="20" height="14" rx="2"></rect>
               <path d="M22 10h-4a2 2 0 0 0-2 2v0a2 2 0 0 0 2 2h4"></path>
             </svg>
@@ -236,10 +250,13 @@
             </div>
           </div>
         </div>
+
         <!-- Fullscreen button as a sibling rather than a child to prevent it from being replaced -->
         <div class="app-controls">
+
           <button class="fullscreen-btn" id="app-fullscreen-btn" title="Toggle fullscreen">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M8 3H5a2 2 0 0 0-2 2v3"></path>
               <path d="M21 8V5a2 2 0 0 0-2-2h-3"></path>
               <path d="M3 16v3a2 2 0 0 0 2 2h3"></path>
@@ -257,7 +274,8 @@
             <div class="address-container">
               <span class="address-display" id="address">Loading address...</span>
               <button class="copy-btn" id="copy-address" title="Copy to clipboard">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                   <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                 </svg>
@@ -267,7 +285,8 @@
           </div>
           <div class="wallet-actions">
             <button class="wallet-action-btn refresh-btn" id="refresh-view" title="Refresh">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
                 <path d="M21 3v5h-5"></path>
                 <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
@@ -309,7 +328,8 @@
           <div class="webview-container">
             <!-- Add fullscreen button -->
             <button class="fullscreen-btn" id="webview-fullscreen-btn" title="Toggle fullscreen">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M8 3H5a2 2 0 0 0-2 2v3"></path>
                 <path d="M21 8V5a2 2 0 0 0-2-2h-3"></path>
                 <path d="M3 16v3a2 2 0 0 0 2 2h3"></path>
@@ -327,6 +347,53 @@
       </section>
     </main>
 
+
+    <div class="stored-apps-drawer" id="stored-apps-drawer">
+      <div class="drawer-header">
+        <h3>Stored Apps</h3>
+        <button class="close-drawer-btn" id="close-drawer-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="drawer-content">
+
+        <div class="app-actions" id="app-actions">
+          <button class="store-app-btn" id="store-app-btn" title="Save App">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+              <polyline points="17 21 17 13 7 13 7 21"></polyline>
+              <polyline points="7 3 7 8 15 8"></polyline>
+            </svg>
+            <span>Save App</span>
+          </button>
+        </div>
+        <div class="apps-list" id="stored-apps-list">
+          <!-- Apps will be populated here -->
+          <div class="empty-state">
+            <p>No stored apps yet</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="drawer-toggle" id="drawer-toggle">
+      <button class="drawer-toggle-btn" title="Show Stored Apps">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+          <line x1="8" y1="21" x2="16" y2="21"></line>
+          <line x1="12" y1="17" x2="12" y2="21"></line>
+        </svg>
+        <span>Stored Apps</span>
+      </button>
+    </div>
+
     <!-- Bottom status bar -->
     <footer class="status-bar">
       <div class="status-item status">Ready</div>
@@ -336,12 +403,18 @@
 
     <!-- Toast notification -->
     <div class="toast" id="toast">Address copied to clipboard</div>
+
   </div>
 
   <!-- Basic initialization script -->
   <script>
+
+    // Current app data reference
+    let currentAppData = null;
+
     // Load the CSS programmatically instead of using link tag
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
+
       // Inject the CSS styles directly into the document to avoid MIME type issues
       fetch('./index.css')
         .then(response => response.text())
@@ -350,7 +423,7 @@
           const styleElement = document.createElement('style');
           styleElement.textContent = cssText;
           document.head.appendChild(styleElement);
-          
+
           // Hide the loading screen
           document.getElementById('loading-screen').style.display = 'none';
         })
@@ -359,25 +432,226 @@
           // Even if CSS fails to load, remove the loading screen
           document.getElementById('loading-screen').style.display = 'none';
         });
-      
+
       // Basic initialization
       initializeApp();
+      initializeStorageFeatures();
     });
+
+    // Add this to your initializeApp function or in a separate function called from there
+    // Modify the existing generate app button click handler to show app actions
+
+    function initializeStorageFeatures() {
+      // DOM elements
+      const storeAppBtn = document.getElementById('store-app-btn');
+      const drawerToggleBtn = document.querySelector('.drawer-toggle-btn');
+      const closeDrawerBtn = document.getElementById('close-drawer-btn');
+      const storedAppsDrawer = document.getElementById('stored-apps-drawer');
+      const storedAppsList = document.getElementById('stored-apps-list');
+      const appActions = document.getElementById('app-actions');
+
+
+      // Load stored apps when drawer is opened
+      drawerToggleBtn.addEventListener('click', () => {
+        storedAppsDrawer.classList.toggle('open');
+        if (storedAppsDrawer.classList.contains('open')) {
+          loadStoredApps();
+        }
+      });
+
+      // Close drawer
+      closeDrawerBtn.addEventListener('click', () => {
+        storedAppsDrawer.classList.remove('open');
+      });
+
+      // Store current app
+      storeAppBtn.addEventListener('click', () => {
+        if (!currentAppData) {
+          showToast('No app to save');
+          return;
+        }
+
+        window.electronAPI.storeAppLocally(currentAppData)
+          .then(result => {
+            if (result.success) {
+              showToast('App saved successfully');
+              // Refresh the apps list if drawer is open
+              if (storedAppsDrawer.classList.contains('open')) {
+                loadStoredApps();
+              }
+            } else {
+              showToast('Failed to save app: ' + result.message);
+            }
+          })
+          .catch(err => {
+            console.error('Error saving app:', err);
+            showToast('Error saving app');
+          });
+      });
+
+      // Format date for display
+      function formatDate(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      }
+
+      // Load stored apps into the drawer
+      function loadStoredApps() {
+        window.electronAPI.getStoredApps()
+          .then(result => {
+            if (result.success) {
+              const apps = result.apps;
+
+              if (apps.length === 0) {
+                storedAppsList.innerHTML = `
+              <div class="empty-state">
+                <p>No stored apps yet</p>
+              </div>
+            `;
+                return;
+              }
+
+              // Sort apps by last opened date (most recent first)
+              apps.sort((a, b) => new Date(b.lastOpened) - new Date(a.lastOpened));
+
+              // Generate HTML for each app
+              const appsHtml = apps.map(app => `
+            <div class="app-card" data-app-path="${app.path}">
+              <div class="app-card-header">
+                <div class="app-name">${app.name}</div>
+              </div>
+              <div class="app-card-content">
+                <div class="app-meta">Created: ${formatDate(app.createdAt)}</div>
+                <div class="app-meta">Last opened: ${formatDate(app.lastOpened)}</div>
+                <div class="app-card-actions">
+                  <button class="app-card-btn load-btn" data-app-path="${app.path}">Load</button>
+                  <button class="app-card-btn delete-btn" data-app-path="${app.path}">Delete</button>
+                </div>
+              </div>
+            </div>
+          `).join('');
+
+              storedAppsList.innerHTML = appsHtml;
+
+              // Add event listeners for load buttons
+              document.querySelectorAll('.load-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                  e.stopPropagation(); // Prevent card click
+                  const appPath = btn.getAttribute('data-app-path');
+                  loadApp(appPath);
+                });
+              });
+
+              // Add event listeners for delete buttons
+              document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                  e.stopPropagation(); // Prevent card click
+                  const appPath = btn.getAttribute('data-app-path');
+                  deleteApp(appPath);
+                });
+              });
+
+              // Add event listeners for cards
+              document.querySelectorAll('.app-card').forEach(card => {
+                card.addEventListener('click', () => {
+                  const appPath = card.getAttribute('data-app-path');
+                  loadApp(appPath);
+                });
+              });
+            } else {
+              storedAppsList.innerHTML = `
+            <div class="empty-state">
+              <p>Error loading apps: ${result.error}</p>
+            </div>
+          `;
+            }
+          })
+          .catch(err => {
+            console.error('Error loading stored apps:', err);
+            storedAppsList.innerHTML = `
+          <div class="empty-state">
+            <p>Error loading apps</p>
+          </div>
+        `;
+          });
+      }
+
+      // Load a stored app
+      function loadApp(appPath) {
+        window.electronAPI.loadStoredApp(appPath)
+          .then(result => {
+            if (result.success) {
+              showToast('App loaded successfully');
+
+              // Display the app
+              const appContainer = document.getElementById('generated-app-container');
+              if (appContainer) {
+                displayGeneratedApp(result.appData);
+                currentAppData = result.appData;
+
+                // Show the app actions
+                appActions.style.display = 'block';
+              }
+
+              // Close the drawer
+              storedAppsDrawer.classList.remove('open');
+            } else {
+              showToast('Failed to load app: ' + result.error);
+            }
+          })
+          .catch(err => {
+            console.error('Error loading app:', err);
+            showToast('Error loading app');
+          });
+      }
+
+      // Delete a stored app
+      function deleteApp(appPath) {
+        if (confirm('Are you sure you want to delete this app?')) {
+          window.electronAPI.deleteStoredApp(appPath)
+            .then(result => {
+              if (result.success) {
+                showToast('App deleted successfully');
+                loadStoredApps(); // Refresh the list
+              } else {
+                showToast('Failed to delete app: ' + result.error);
+              }
+            })
+            .catch(err => {
+              console.error('Error deleting app:', err);
+              showToast('Error deleting app');
+            });
+        }
+      }
+    }
+
+    // Toast notification functionality
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      if (!toast) return;
+
+      toast.textContent = message;
+      toast.classList.add('show');
+
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
 
     // Initialize app functionality
     function initializeApp() {
       // Mode switching functionality
       const modeButtons = document.querySelectorAll('.mode-button');
       const modePanels = document.querySelectorAll('.mode-panel');
-      
+
       modeButtons.forEach(button => {
         button.addEventListener('click', () => {
           const mode = button.getAttribute('data-mode');
-          
+
           // Update active button
           modeButtons.forEach(btn => btn.classList.remove('active'));
           button.classList.add('active');
-          
+
           // Show corresponding panel
           modePanels.forEach(panel => {
             if (panel.classList.contains(mode + '-mode')) {
@@ -394,7 +668,7 @@
       const generateBtn = document.getElementById('generate-btn');
       const suggestionChips = document.querySelectorAll('.suggestion-chip');
       const statusElement = document.querySelector('.status');
-      
+
       if (suggestionChips && promptInput) {
         suggestionChips.forEach(chip => {
           chip.addEventListener('click', () => {
@@ -404,7 +678,7 @@
           });
         });
       }
-      
+
       // Generate button functionality (placeholder)
       if (generateBtn && promptInput) {
         generateBtn.addEventListener('click', () => {
@@ -412,7 +686,13 @@
           if (prompt) {
             showToast('Generating app: ' + prompt);
             if (statusElement) statusElement.textContent = 'Generating...';
-            
+
+
+            // Add new functionality: Show app actions when generation starts
+            // if (document.getElementById('prompt-input').value.trim()) {
+            //   appActions.style.display = 'block';
+            // }
+
             // Check if electronAPI is available
             if (window.electronAPI && window.electronAPI.generateApp) {
               window.electronAPI.generateApp(prompt)
@@ -421,7 +701,7 @@
                   if (result.success) {
                     showToast('App generated successfully!');
                     if (statusElement) statusElement.textContent = 'Ready';
-                    
+
                     // Ensure fullscreen button is visible after app generation
                     // This is required because app generation replaces the content
                     const appControls = document.querySelector('.app-controls');
@@ -430,6 +710,8 @@
                       createMode.appendChild(appControls);
                       appControls.style.display = 'block';
                     }
+                    currentAppData = result.appData;
+                    appActions.style.display = 'block';
                   } else {
                     showToast('Error: ' + (result.error || 'Unknown error'));
                     if (statusElement) statusElement.textContent = 'Error';
@@ -443,7 +725,7 @@
             } else {
               // Fallback for when electronAPI is not available
               showToast('API not available in this environment');
-              
+
               // Simulate app generation for testing (mock content replacement)
               setTimeout(() => {
                 const appContainer = document.getElementById('generated-app-container');
@@ -462,7 +744,7 @@
                       </div>
                     </div>
                   `;
-                  
+
                   // Ensure fullscreen button is visible after mock app generation
                   const appControls = document.querySelector('.app-controls');
                   const createMode = document.querySelector('.create-mode');
@@ -470,7 +752,7 @@
                     createMode.appendChild(appControls);
                     appControls.style.display = 'block';
                   }
-                  
+
                   showToast('Mock app generated for testing');
                   if (statusElement) statusElement.textContent = 'Ready';
                 }
@@ -481,70 +763,70 @@
           }
         });
       }
-      
+
       // Initialize webview if present
       const webview = document.getElementById('webview');
       if (webview) {
         // Handle webview events
-        webview.addEventListener('did-start-loading', function() {
+        webview.addEventListener('did-start-loading', function () {
           document.getElementById('loading-indicator')?.classList.add('active');
         });
-        
-        webview.addEventListener('did-stop-loading', function() {
+
+        webview.addEventListener('did-stop-loading', function () {
           document.getElementById('loading-indicator')?.classList.remove('active');
         });
-        
+
         // URL navigation
         const urlInput = document.getElementById('url-input');
         const navigateBtn = document.getElementById('navigate');
-        
+
         if (urlInput) {
           // Initialize URL input with webview src
           urlInput.value = webview.getAttribute('src') || '';
-          
+
           // Handle URL input enter key
-          urlInput.addEventListener('keydown', function(e) {
+          urlInput.addEventListener('keydown', function (e) {
             if (e.key === 'Enter') {
               navigateTo(urlInput.value);
             }
           });
         }
-        
+
         if (navigateBtn) {
-          navigateBtn.addEventListener('click', function() {
+          navigateBtn.addEventListener('click', function () {
             navigateTo(urlInput.value);
           });
         }
-        
+
         // Handle site buttons
         const siteButtons = document.querySelectorAll('.site-btn');
         if (siteButtons) {
           siteButtons.forEach(button => {
-            button.addEventListener('click', function() {
+            button.addEventListener('click', function () {
               const url = button.getAttribute('data-url');
               if (url) navigateTo(url);
             });
           });
         }
-        
+
         // Function to navigate to URL
         function navigateTo(url) {
           if (!url) return;
-          
+
           // Make sure URL has protocol
           if (!url.startsWith('http://') && !url.startsWith('https://')) {
             url = 'https://' + url;
           }
-          
+
           webview.setAttribute('src', url);
           if (urlInput) urlInput.value = url;
         }
       }
-      
+
       // Copy address functionality
       const copyBtn = document.getElementById('copy-address');
       const addressDisplay = document.getElementById('address');
-      
+
       if (copyBtn && addressDisplay) {
         copyBtn.addEventListener('click', () => {
           const address = addressDisplay.textContent;
@@ -572,54 +854,42 @@
           }
         });
       }
-      
+
       // Window control functionality
       const minimizeBtn = document.querySelector('.minimize');
       const maximizeBtn = document.querySelector('.maximize');
       const closeBtn = document.querySelector('.close');
-      
+
       if (window.electronAPI) {
         if (minimizeBtn) {
           minimizeBtn.addEventListener('click', () => {
             window.electronAPI.minimizeWindow();
           });
         }
-        
+
         if (maximizeBtn) {
           maximizeBtn.addEventListener('click', () => {
             window.electronAPI.maximizeWindow();
           });
         }
-        
+
         if (closeBtn) {
           closeBtn.addEventListener('click', () => {
             window.electronAPI.closeWindow();
           });
         }
       }
-      
-      // Toast notification functionality
-      function showToast(message) {
-        const toast = document.getElementById('toast');
-        if (!toast) return;
-        
-        toast.textContent = message;
-        toast.classList.add('show');
-        
-        setTimeout(() => {
-          toast.classList.remove('show');
-        }, 3000);
-      }
+
 
       // Fullscreen functionality for app container
       const appContainer = document.getElementById('generated-app-container');
       const appFullscreenBtn = document.getElementById('app-fullscreen-btn');
-      
+
       if (appContainer && appFullscreenBtn) {
         appFullscreenBtn.addEventListener('click', () => {
           toggleFullscreen(appContainer, appFullscreenBtn);
         });
-        
+
         // Ensure the button is visible after app generation
         const createMode = document.querySelector('.create-mode');
         if (createMode) {
@@ -631,7 +901,7 @@
       // Fullscreen functionality for webview container
       const webviewContainer = document.querySelector('.webview-container');
       const webviewFullscreenBtn = document.getElementById('webview-fullscreen-btn');
-      
+
       if (webviewContainer && webviewFullscreenBtn) {
         webviewFullscreenBtn.addEventListener('click', () => {
           toggleFullscreen(webviewContainer, webviewFullscreenBtn);
@@ -643,7 +913,7 @@
         if (element.classList.contains('fullscreen-mode')) {
           // Exit fullscreen
           element.classList.remove('fullscreen-mode');
-          
+
           // Change icon to expand
           button.innerHTML = `
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -653,16 +923,16 @@
               <path d="M16 21h3a2 2 0 0 0 2-2v-3"></path>
             </svg>
           `;
-          
+
           // Show other UI elements that might be hidden
           document.querySelector('.app-header').style.display = '';
           document.querySelector('.status-bar').style.display = '';
-          
+
           showToast('Exited fullscreen mode');
         } else {
           // Enter fullscreen
           element.classList.add('fullscreen-mode');
-          
+
           // Change icon to collapse
           button.innerHTML = `
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -672,11 +942,11 @@
               <path d="M16 21v-3a2 2 0 0 1 2-2h3"></path>
             </svg>
           `;
-          
+
           // Hide other UI elements for true fullscreen experience
           document.querySelector('.app-header').style.display = 'none';
           document.querySelector('.status-bar').style.display = 'none';
-          
+
           showToast('Entered fullscreen mode');
         }
       }
@@ -686,7 +956,7 @@
         // F11 for fullscreen
         if (e.key === 'F11') {
           e.preventDefault();
-          
+
           // Toggle fullscreen for the active panel
           const activePanel = document.querySelector('.mode-panel.active');
           if (activePanel.classList.contains('create-mode')) {
@@ -695,7 +965,7 @@
             toggleFullscreen(webviewContainer, webviewFullscreenBtn);
           }
         }
-        
+
         // ESC to exit fullscreen
         if (e.key === 'Escape') {
           const fullscreenElements = document.querySelectorAll('.fullscreen-mode');
@@ -708,7 +978,9 @@
           });
         }
       });
+
     }
   </script>
 </body>
+
 </html>

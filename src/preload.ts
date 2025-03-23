@@ -13,6 +13,13 @@ interface ElectronAPI {
   maximizeWindow: () => void;
   closeWindow: () => void;
 
+
+  storeAppLocally: (appData: any) => Promise<void>,
+  getStoredApps: () => Promise<void>,
+  loadStoredApp: (appPath: any) => Promise<void>,
+  deleteStoredApp: (appPath: any) => Promise<void>,
+
+
   // Network API for embedded apps
   fetch: (url: string, options?: any) => Promise<any>;
   request: (config: any) => Promise<any>;
@@ -26,6 +33,13 @@ contextBridge.exposeInMainWorld(
     // App generation
     generateApp: (prompt: string) => ipcRenderer.invoke('generate-app', prompt),
     runApp: (appPath: string) => ipcRenderer.invoke('run-app', appPath),
+
+
+    storeAppLocally: (appData: any) => ipcRenderer.invoke('store-app-locally', appData),
+    getStoredApps: () => ipcRenderer.invoke('get-stored-apps'),
+    loadStoredApp: (appPath: any) => ipcRenderer.invoke('load-stored-app', appPath),
+    deleteStoredApp: (appPath: any) => ipcRenderer.invoke('delete-stored-app', appPath),
+  
 
     // Window controls
     minimizeWindow: () => ipcRenderer.send('minimize-window'),
